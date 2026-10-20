@@ -3,11 +3,15 @@
 > **Disclaimer:** The code in this project is AI generated, and tested by humans.
 > The prompts used to generate it are listed in [PROMPTS.md](PROMPTS.md).
 
-PlatformIO starter project for a WEMOS LOLIN S2 Mini (ESP32-S2) with a WIZnet W5500 SPI Ethernet module.
+PlatformIO starter project for an ESP32 with a WIZnet W5500 SPI Ethernet module.
 It uses the native W5500 driver in Arduino-ESP32 core 3.x (`ETH.h`), so the
 standard network stack (`WiFiClient`, `HTTPClient`, `WebServer`, mDNS, …) works
 over Ethernet. On boot it gets an address over DHCP and serves a small status
-page on port 80.
+page on port 80. It also publishes sensor data over MQTT.
+
+Used hardware for testing:
+- WEMOS LOLIN S2 Mini clone V1.0.0 (ESP32-S2)
+- W5500 Lite V455
 
 ## Wiring (default)
 
