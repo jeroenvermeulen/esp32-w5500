@@ -40,6 +40,86 @@ download-mode upload to start the firmware.
 
 After it boots, open `http://<ip-from-serial-log>/`.
 
+## MQTT
+
+The firmware publishes telemetry over plain MQTT (no TLS) using
+[PubSubClient](https://github.com/knolleary/pubsubclient), with Tasmota-style
+topics. `<topic>` defaults to the hostname (`esp32-w5500`).
+
+| Topic                  | Payload | Retained |
+|------------------------|---------|----------|
+| `tele/<topic>/LWT`     | `Online` once connected, `Offline` (sent by the broker as Last Will) when the device drops off | yes |
+| `tele/<topic>/SENSOR`  | `{"Time":"2026-10-20T21:30:00","ESP32":{"Internal Temperature":42.1},"TempUnit":"C"}` | no |
+
+SENSOR is sent right after connecting and then every `MQTT_TELEPERIOD` seconds
+(60 by default). `Time` is local time from NTP (Europe/Brussels
+by default) and is left out until the clock has been set. The temperature comes from the ESP32's internal sensor, so it measures the chip, not the room.
+
+To configure the broker, copy `include/secrets.example.h` to `include/secrets.h`
+(gitignored) and set `MQTT_HOST`, `MQTT_PORT`, `MQTT_USER` and `MQTT_PASS`.
+You can also override `MQTT_TOPIC`, `MQTT_TELEPERIOD` and `TIMEZONE` (a POSIX TZ string) there.
+MQTT stays off while `MQTT_HOST` is empty.
+
+## Setup on macOS (from scratch)
+
+These steps assume a fresh Mac with nothing installed.
+
+1. **Install the Xcode Command Line Tools** (provides `git` and a compiler):
+
+   ```sh
+   xcode-select --install
+   ```
+
+2. **Install [Homebrew](https://brew.sh)**, then follow the "Next steps" it
+   prints to add `brew` to your `PATH`:
+
+   ```sh
+   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+   ```
+
+3. **Install PlatformIO Core and `jq`** (`jq` is only needed for the prompt-log
+   hook, see below):
+
+   ```sh
+   brew install platformio jq
+   pio --version
+   ```
+
+4. **Get the code:**
+
+   ```sh
+   git clone https://github.com/jeroenvermeulen/esp32-w5500.git
+   cd esp32-w5500
+   ```
+
+5. **Optional: configure MQTT** by creating `include/secrets.h` (see
+   [MQTT](#mqtt)). The firmware builds and runs without it.
+
+   ```sh
+   cp include/secrets.example.h include/secrets.h
+   ```
+
+6. **Connect the S2 Mini** with a USB-C *data* cable (charge-only cables won't
+   work). No driver is needed on macOS. A fresh board must be put in download
+   mode for the first upload (see below). Check that it shows up:
+
+   ```sh
+   pio device list            # look for /dev/cu.usbmodem*
+   ```
+
+7. **Build and flash** with the commands in [Build & flash](#build--flash). The
+   first `pio run` downloads the ESP32 toolchain and Arduino core (several
+   hundred MB), so it takes a while.
+
+### Using VS Code instead (optional)
+
+Install [Visual Studio Code](https://code.visualstudio.com) (or
+`brew install --cask visual-studio-code`), open this folder, and accept the
+recommended **PlatformIO IDE** extension. Build, Upload and Serial Monitor are
+then available from the PlatformIO toolbar at the bottom of the window. The
+extension installs its own copy of PlatformIO Core, so step 3 is optional if
+you only use VS Code.
+
 ## AI prompt log
 
 All AI prompts used on this project are recorded in [PROMPTS.md](PROMPTS.md).
