@@ -1,0 +1,72 @@
+{
+  // PlatformIO tasks. Run via Terminal > Run Task…, or Cmd+Shift+B for Build.
+  // Requires the `pio` CLI on PATH (e.g. `brew install platformio`).
+  "version": "2.0.0",
+  "options": {
+    "cwd": "${workspaceFolder}"
+  },
+  "tasks": [
+    {
+      "label": "PIO: Build",
+      "type": "shell",
+      "command": "pio run",
+      "group": { "kind": "build", "isDefault": true },
+      "problemMatcher": {
+        "base": "$gcc",
+        "fileLocation": ["relative", "${workspaceFolder}"]
+      }
+    },
+    {
+      "label": "PIO: Upload",
+      "type": "shell",
+      "command": "pio run -t upload",
+      "group": "build",
+      "problemMatcher": {
+        "base": "$gcc",
+        "fileLocation": ["relative", "${workspaceFolder}"]
+      }
+    },
+    {
+      "label": "PIO: Monitor",
+      "type": "shell",
+      "command": "pio device monitor",
+      "isBackground": true,
+      "presentation": { "panel": "dedicated", "focus": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "PIO: Upload and Monitor",
+      "type": "shell",
+      "command": "pio run -t upload -t monitor",
+      "group": "build",
+      "isBackground": true,
+      "presentation": { "panel": "dedicated", "focus": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "PIO: Clean",
+      "type": "shell",
+      "command": "pio run -t clean",
+      "problemMatcher": []
+    },
+    {
+      "label": "PIO: Erase Flash",
+      "type": "shell",
+      "command": "pio run -t erase",
+      "problemMatcher": []
+    },
+    {
+      "label": "PIO: List Devices",
+      "type": "shell",
+      "command": "pio device list",
+      "problemMatcher": []
+    },
+    {
+      "label": "PIO: Generate compile_commands.json",
+      "detail": "For IntelliSense / clangd",
+      "type": "shell",
+      "command": "pio run -t compiledb",
+      "problemMatcher": []
+    }
+  ]
+}
