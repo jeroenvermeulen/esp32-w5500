@@ -60,3 +60,8 @@ in the same format.
 
 > Please create an AGENTS.md with anything useful for future agents working on this project.
 > The goal is to make it the AI faster and more efficient.
+
+## 2026-10-20 22:06 · Jeroen Vermeulen
+
+> During startup please send a serial message what the next step is because when something is wrong it takes very long and you don't know what it is doing.
+> I disconnected the ethernet cable, will there be a timeout?

@@ -11,7 +11,7 @@ page on port 80. It also publishes sensor data over MQTT.
 
 Used hardware for testing:
 - WEMOS LOLIN S2 Mini clone V1.0.0 (ESP32-S2)
-- W5500 Lite V455
+- W5500 Lite USR-ES1 V455
 
 ## Wiring (default)
 

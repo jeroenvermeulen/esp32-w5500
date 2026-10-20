@@ -8,8 +8,13 @@
 #include "mqtt.h"
 
 static bool ethConnected = false;
+static bool ethLinkUp = false;
 static WebServer server(HTTP_PORT);
 static uint32_t lastTele = 0;
+static uint32_t lastWaitMsg = 0;
+
+// How often to repeat the "waiting for network" message while offline.
+static const uint32_t WAIT_MSG_INTERVAL_MS = 10000;
 
 static void onNetworkEvent(arduino_event_id_t event, arduino_event_info_t info) {
   switch (event) {
@@ -18,11 +23,13 @@ static void onNetworkEvent(arduino_event_id_t event, arduino_event_info_t info) 
       ETH.setHostname(HOSTNAME);
       break;
     case ARDUINO_EVENT_ETH_CONNECTED:
-      Serial.println("ETH link up");
+      Serial.println("ETH link up, requesting IP via DHCP");
+      ethLinkUp = true;
       break;
     case ARDUINO_EVENT_ETH_GOT_IP:
       Serial.printf("ETH got IP: %s\n", ETH.localIP().toString().c_str());
       Serial.println(ETH);
+      Serial.printf("Starting NTP (%s)\n", NTP_SERVER);
       configTzTime(TIMEZONE, NTP_SERVER);
       ethConnected = true;
       break;
@@ -32,10 +39,12 @@ static void onNetworkEvent(arduino_event_id_t event, arduino_event_info_t info) 
       break;
     case ARDUINO_EVENT_ETH_DISCONNECTED:
       Serial.println("ETH link down");
+      ethLinkUp = false;
       ethConnected = false;
       break;
     case ARDUINO_EVENT_ETH_STOP:
       Serial.println("ETH stopped");
+      ethLinkUp = false;
       ethConnected = false;
       break;
     default:
@@ -104,19 +113,46 @@ void setup() {
 
   Network.onEvent(onNetworkEvent);
 
+  Serial.println("Starting SPI");
   SPI.begin(ETH_SPI_SCK, ETH_SPI_MISO, ETH_SPI_MOSI);
+  Serial.println("Starting W5500 (ETH.begin)");
   if (!ETH.begin(ETH_PHY_W5500, ETH_PHY_ADDR, ETH_PHY_CS, ETH_PHY_IRQ, ETH_PHY_RST, SPI)) {
     Serial.println("ETH.begin() failed - check W5500 wiring");
   }
 
+  Serial.println("Starting MQTT client");
   mqttBegin();
 
+  Serial.printf("Starting web server on port %d\n", HTTP_PORT);
   server.on("/", handleRoot);
   server.begin();
+
+  // Link and DHCP are handled asynchronously by onNetworkEvent(); loop()
+  // reports progress while we wait.
+  Serial.println("Setup done, waiting for Ethernet link");
+  lastWaitMsg = millis();
+}
+
+// Link and DHCP have no timeout (they wait forever), so say periodically
+// what we are still waiting for.
+static void reportWaiting() {
+  if (ethConnected) {
+    return;
+  }
+  if (millis() - lastWaitMsg < WAIT_MSG_INTERVAL_MS) {
+    return;
+  }
+  lastWaitMsg = millis();
+  if (ethLinkUp) {
+    Serial.println("Still waiting for an IP address from DHCP");
+  } else {
+    Serial.println("Still waiting for Ethernet link - is the cable plugged in?");
+  }
 }
 
 void loop() {
   server.handleClient();
+  reportWaiting();
 
   if (mqttLoop(ethConnected)) {
     // Publish right after (re)connecting, then every MQTT_TELEPERIOD seconds.
