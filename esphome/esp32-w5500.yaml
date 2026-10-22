@@ -89,9 +89,8 @@ interval:
 script:
   # Example: {"Time":"2026-10-20T21:30:00","ESP32":{"Internal Temperature":42.1},"TempUnit":"C"}
   - id: publish_sensor
-    then:
-      # Fresh reading, so the first message after boot is not NaN.
-      - component.update: chip_temp
+    then:      
+      - component.update: chip_temp # Fresh reading
       - mqtt.publish_json:
           topic: tele/${mqtt_topic}/SENSOR
           payload: |-
@@ -133,6 +132,6 @@ text_sensor:
       return now.strftime("%Y-%m-%dT%H:%M:%S");
 
 binary_sensor:
-  # True while connected to the MQTT broker (there is no native API here).
+  # True while connected to the MQTT broker or Native API.
   - platform: status
-    name: MQTT
+    name: MQTT/API
