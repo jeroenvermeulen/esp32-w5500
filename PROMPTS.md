@@ -65,3 +65,39 @@ in the same format.
 
 > During startup please send a serial message what the next step is because when something is wrong it takes very long and you don't know what it is doing.
 > I disconnected the ethernet cable, will there be a timeout?
+
+## 2026-10-22 19:24 · Jeroen Vermeulen
+
+> Can you generate an example Yaml for ESPHome which does the same as the current implementation? Please put it in @esphome/ folder
+
+## 2026-10-22 19:31 · Jeroen Vermeulen
+
+> Can you put the instructions how to use it in `esphome/README.md` including how to install the `esphome` on MacOS assuming it is brand new
+
+## 2026-10-22 19:32 · Jeroen Vermeulen
+
+> Flashing fails. Executed `esphome run esphome/esp32-w5500.yaml`
+
+## 2026-10-22 19:34 · Jeroen Vermeulen
+
+> Please try for yourself to make it work
+
+## 2026-10-22 19:43 · Jeroen Vermeulen
+
+> How do I generate this `ota_encryption_key`
+
+## 2026-10-22 19:45 · Jeroen Vermeulen
+
+> How can this device be discovered by the Home Assistant server?
+
+## 2026-10-22 19:47 · Jeroen Vermeulen
+
+> Can you also enable the 'ESPHome-style <prefix>/sensor/.../state topics'
+
+## 2026-10-22 19:52 · Jeroen Vermeulen
+
+> Can it skip sending updates about the current Time to Home Assistant?
+
+## 2026-10-22 20:18 · Jeroen Vermeulen
+
+> Can you update the README based on the current Yaml. Please keep it short.

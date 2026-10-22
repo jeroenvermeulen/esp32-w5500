@@ -5,3 +5,5 @@
 .vscode/ipch
 compile_commands.json
 include/secrets.h
+esphome/secrets.yaml
+esphome/.esphome/

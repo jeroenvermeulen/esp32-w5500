@@ -64,6 +64,13 @@ To configure the broker, copy `include/secrets.example.h` to `include/secrets.h`
 You can also override `MQTT_TOPIC`, `MQTT_TELEPERIOD` and `TIMEZONE` (a POSIX TZ string) there.
 MQTT stays off while `MQTT_HOST` is empty.
 
+## ESPHome alternative
+
+[esphome/esp32-w5500.yaml](esphome/esp32-w5500.yaml) is an example ESPHome
+config that does the same as this firmware: same wiring, DHCP, a web page on
+port 80, and the same Tasmota-style `LWT` and `SENSOR` MQTT messages. See
+[esphome/README.md](esphome/README.md) for setup and usage.
+
 ## Setup on macOS (from scratch)
 
 These steps assume a fresh Mac with nothing installed.

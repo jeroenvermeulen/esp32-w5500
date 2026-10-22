@@ -1,0 +1,138 @@
+# ESPHome equivalent of the PlatformIO firmware in this repo:
+# LOLIN S2 Mini (ESP32-S2) + W5500 over SPI, DHCP, status page on port 80,
+# Tasmota-style MQTT telemetry (tele/<topic>/LWT and tele/<topic>/SENSOR).
+#
+# Setup and usage: see README.md in this folder.
+
+substitutions:
+  name: esp32-w5500
+  mqtt_topic: esp32-w5500   # tele/<mqtt_topic>/...
+  teleperiod: 60s           # time between SENSOR messages
+  ethernet_spi_sck: GPIO36
+  ethernet_spi_miso: GPIO37
+  ethernet_spi_mosi: GPIO35
+  ethernet_spi_cs: GPIO34
+  ethernet_spi_irq: GPIO33
+
+esphome:
+  name: ${name}
+  friendly_name: ESP32 + W5500
+
+esp32:
+  board: lolin_s2_mini
+  framework:
+    type: esp-idf
+
+logger:
+  hardware_uart: USB_CDC
+  baud_rate: 115200
+
+api:
+  encryption:
+    key: !secret ota_encryption_key
+
+ota:
+  - platform: esphome
+    encryption:
+
+ethernet:
+  type: W5500
+  clk_pin: ${ethernet_spi_sck}
+  miso_pin: ${ethernet_spi_miso}
+  mosi_pin: ${ethernet_spi_mosi}
+  cs_pin: ${ethernet_spi_cs}
+  interrupt_pin: ${ethernet_spi_irq}
+
+time:
+  - platform: sntp
+    id: sntp_time
+    servers:
+      - pool.ntp.org
+    timezone: Europe/Brussels
+
+web_server:
+  port: 80
+  version: 3  
+  include_internal: true # To show Time
+
+mqtt:
+  broker: !secret mqtt_host
+  port: !secret mqtt_port
+  username: !secret mqtt_user
+  password: !secret mqtt_pass
+  # Each entity also publishes <prefix>/<domain>/<object_id>/state, e.g.
+  # esp32-w5500/sensor/internal_temperature/state, next to the Tasmota-style topics.
+  birth_message:
+    topic: tele/${mqtt_topic}/LWT
+    payload: Online
+    retain: true
+  will_message:
+    topic: tele/${mqtt_topic}/LWT
+    payload: Offline
+    retain: true
+  shutdown_message:
+    topic: tele/${mqtt_topic}/LWT
+    payload: Offline
+    retain: true
+  on_connect:
+    - script.execute: publish_sensor
+
+interval:
+  - interval: ${teleperiod}
+    then:
+      - if:
+          condition:
+            mqtt.connected:
+          then:
+            - script.execute: publish_sensor
+
+script:
+  # Example: {"Time":"2026-10-20T21:30:00","ESP32":{"Internal Temperature":42.1},"TempUnit":"C"}
+  - id: publish_sensor
+    then:
+      # Fresh reading, so the first message after boot is not NaN.
+      - component.update: chip_temp
+      - mqtt.publish_json:
+          topic: tele/${mqtt_topic}/SENSOR
+          payload: |-
+            auto now = id(sntp_time).now();
+            // Leave Time out until NTP has set the clock.
+            if (now.is_valid()) {
+              root["Time"] = now.strftime("%Y-%m-%dT%H:%M:%S");
+            }
+            float t = id(chip_temp).state;
+            if (!std::isnan(t)) {
+              root["ESP32"]["Internal Temperature"] = roundf(t * 10) / 10;
+            }
+            root["TempUnit"] = "C";
+
+sensor:
+  - platform: internal_temperature
+    id: chip_temp
+    name: Internal Temperature
+    accuracy_decimals: 1
+    update_interval: ${teleperiod}
+  - platform: uptime
+    name: Uptime
+
+text_sensor:
+  - platform: ethernet_info
+    ip_address:
+      name: IP
+    mac_address:
+      name: MAC
+  - platform: template
+    name: Time
+    internal: true # Don't send to Home Assistant
+    update_interval: 1s
+    lambda: |-
+      auto now = id(sntp_time).now();
+      if (!now.is_valid()) {
+        return {"not set"};
+      }
+      return now.strftime("%Y-%m-%dT%H:%M:%S");
+
+binary_sensor:
+  # True while connected to the MQTT broker (there is no native API here).
+  - platform: status
+    name: MQTT
