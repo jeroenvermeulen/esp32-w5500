@@ -1,6 +1,6 @@
 {
-  // PlatformIO tasks. Run via Terminal > Run Task…, or Cmd+Shift+B for Build.
-  // Requires the `pio` CLI on PATH (e.g. `brew install platformio`).
+  // PlatformIO and ESPHome tasks. Run via Terminal > Run Task….
+  // PIO tasks require the `pio` CLI on PATH (e.g. `brew install platformio`).
   "version": "2.0.0",
   "options": {
     "cwd": "${workspaceFolder}"
@@ -10,10 +10,16 @@
       "label": "PIO: Build",
       "type": "shell",
       "command": "pio run",
-      "group": { "kind": "build", "isDefault": true },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
       "problemMatcher": {
         "base": "$gcc",
-        "fileLocation": ["relative", "${workspaceFolder}"]
+        "fileLocation": [
+          "relative",
+          "${workspaceFolder}"
+        ]
       }
     },
     {
@@ -23,7 +29,10 @@
       "group": "build",
       "problemMatcher": {
         "base": "$gcc",
-        "fileLocation": ["relative", "${workspaceFolder}"]
+        "fileLocation": [
+          "relative",
+          "${workspaceFolder}"
+        ]
       }
     },
     {
@@ -31,7 +40,10 @@
       "type": "shell",
       "command": "pio device monitor",
       "isBackground": true,
-      "presentation": { "panel": "dedicated", "focus": true },
+      "presentation": {
+        "panel": "dedicated",
+        "focus": true
+      },
       "problemMatcher": []
     },
     {
@@ -40,7 +52,10 @@
       "command": "pio run -t upload -t monitor",
       "group": "build",
       "isBackground": true,
-      "presentation": { "panel": "dedicated", "focus": true },
+      "presentation": {
+        "panel": "dedicated",
+        "focus": true
+      },
       "problemMatcher": []
     },
     {
@@ -66,6 +81,78 @@
       "detail": "For IntelliSense / clangd",
       "type": "shell",
       "command": "pio run -t compiledb",
+      "problemMatcher": []
+    },
+    {
+      "label": "ESPHome: Validate Config",
+      "type": "shell",
+      "command": "esphome config esp32-w5500.yaml",
+      "options": {
+        "cwd": "${workspaceFolder}/esphome"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "ESPHome: Build",
+      "type": "shell",
+      "command": "esphome compile esp32-w5500.yaml",
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "options": {
+        "cwd": "${workspaceFolder}/esphome"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "ESPHome: Upload",
+      "type": "shell",
+      "command": "esphome upload esp32-w5500.yaml",
+      "options": {
+        "cwd": "${workspaceFolder}/esphome"
+      },
+      "presentation": {
+        "panel": "dedicated",
+        "focus": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "ESPHome: Logs",
+      "type": "shell",
+      "command": "esphome logs esp32-w5500.yaml",
+      "options": {
+        "cwd": "${workspaceFolder}/esphome"
+      },
+      "isBackground": true,
+      "presentation": {
+        "panel": "dedicated",
+        "focus": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "ESPHome: Build, Upload and Logs",
+      "type": "shell",
+      "command": "esphome run esp32-w5500.yaml",
+      "options": {
+        "cwd": "${workspaceFolder}/esphome"
+      },
+      "isBackground": true,
+      "presentation": {
+        "panel": "dedicated",
+        "focus": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "ESPHome: Clean",
+      "type": "shell",
+      "command": "esphome clean esp32-w5500.yaml",
+      "options": {
+        "cwd": "${workspaceFolder}/esphome"
+      },
       "problemMatcher": []
     }
   ]

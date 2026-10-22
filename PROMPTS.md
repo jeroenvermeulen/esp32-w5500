@@ -101,3 +101,7 @@ in the same format.
 ## 2026-10-22 20:18 · Jeroen Vermeulen
 
 > Can you update the README based on the current Yaml. Please keep it short.
+
+## 2026-10-22 20:33 · Jeroen Vermeulen
+
+> Can you update @.vscode/tasks.json with the ESPHome tasks

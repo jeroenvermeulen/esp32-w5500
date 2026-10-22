@@ -22,7 +22,7 @@ The whole codebase is ~230 lines; reading every file under `src/` and
 | `include/config.h` | Pins, hostname, and all tunables, each as `#ifndef` default |
 | `include/secrets.example.h` | Template for `include/secrets.h` (gitignored), which overrides `config.h` |
 | `platformio.ini` | Single env `lolin_s2_mini`; pinned platform and libs |
-| `.vscode/tasks.json` | PIO build/upload/monitor tasks |
+| `.vscode/tasks.json` | PIO and ESPHome build/upload/monitor tasks |
 | `.claude/hooks/log-prompt.sh` | Appends every user prompt to `PROMPTS.md` |
 | `lib/`, `test/` | Empty |
 
